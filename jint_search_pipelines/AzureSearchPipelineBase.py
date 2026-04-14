@@ -18,11 +18,9 @@ Supports data sources:
 - SharePoint Online (sharepoint): SharePoint document libraries with managed identity auth
 """
 
-import json
 import os
 from abc import ABC
 from enum import Enum
-from pathlib import Path
 from typing import Optional
 
 from azure.identity import DefaultAzureCredential
@@ -52,34 +50,18 @@ from azure.search.documents.indexes.models import (
     VectorSearch,
     VectorSearchProfile,
 )
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
-def load_terraform_config() -> dict:
-    """
-    Load Terraform configuration from terraform.tfvars.json.
-
-    Returns:
-        Dictionary containing Terraform configuration, or empty dict if file not found
-    """
-    # Look for terraform.tfvars.json in the parent directory and up
-    search_paths = [
-        Path(__file__).parent.parent / "terraform" / "terraform.tfvars.json",
-        Path.cwd() / "terraform" / "terraform.tfvars.json",
-        Path.cwd() / "terraform.tfvars.json",
-    ]
-
-    for path in search_paths:
-        if path.exists():
-            try:
-                with open(path, "r") as f:
-                    return json.load(f)
-            except (json.JSONDecodeError, IOError) as e:
-                print(f"Warning: Could not load config from {path}: {e}")
-
-    return {}
+def _require_env(key: str, provided: Optional[str] = None) -> str:
+    if provided:
+        return provided
+    value = os.environ.get(key)
+    if not value:
+        raise ValueError(
+            f"Missing required configuration '{key}'. "
+            f"Pass it as a constructor argument or set the {key} environment variable."
+        )
+    return value
 
 
 class DataSourceType(Enum):
@@ -137,36 +119,15 @@ class AzureSearchPipelineBase(ABC):
             sharepoint_app_secret: SharePoint indexer app registration secret
             sharepoint_tenant_id: Target Tenant ID for SharePoint (where the data resides)
         """
-        # Load Terraform config for SharePoint credentials if not provided
-        tf_config = load_terraform_config()
-
         # Service endpoints and credentials
-        self.azure_search_service = (
-            azure_search_service or os.environ["AZURE_SEARCH_SERVICE"]
-        )
-        self.azure_openai_account = (
-            azure_openai_account or os.environ["AZURE_OPENAI_ACCOUNT"]
-        )
-        self.azure_storage_connection = (
-            azure_storage_connection or os.environ["AZURE_STORAGE_CONNECTION"]
-        )
+        self.azure_search_service = _require_env("AZURE_SEARCH_SERVICE", azure_search_service)
+        self.azure_openai_account = _require_env("AZURE_OPENAI_ACCOUNT", azure_openai_account)
+        self.azure_storage_connection = _require_env("AZURE_STORAGE_CONNECTION", azure_storage_connection)
 
-        # SharePoint integration credentials
-        self.sharepoint_app_id = (
-            sharepoint_app_id
-            or os.environ.get("SHAREPOINT_INDEXER_APP_ID")
-            or tf_config.get("sharepoint_indexer_app_id")
-        )
-        self.sharepoint_app_secret = (
-            sharepoint_app_secret
-            or os.environ.get("SHAREPOINT_INDEXER_APP_SECRET")
-            or tf_config.get("sharepoint_indexer_app_secret")
-        )
-        self.sharepoint_tenant_id = (
-            sharepoint_tenant_id
-            or os.environ.get("SHAREPOINT_TENANT_ID")
-            or tf_config.get("sharepoint_tenant_id")
-        )
+        # SharePoint integration credentials (optional — only required when using SharePoint data source)
+        self.sharepoint_app_id = sharepoint_app_id or os.environ.get("SHAREPOINT_INDEXER_APP_ID")
+        self.sharepoint_app_secret = sharepoint_app_secret or os.environ.get("SHAREPOINT_INDEXER_APP_SECRET")
+        self.sharepoint_tenant_id = sharepoint_tenant_id or os.environ.get("SHAREPOINT_TENANT_ID")
 
         # Pipeline configuration
         self.index_name = index_name

@@ -2,11 +2,8 @@ from azure.search.documents.indexes.models import (
     SearchField,
     SearchFieldDataType,
 )
-from dotenv import load_dotenv
 
 from .AzureSearchPipelineBase import AzureSearchPipelineBase
-
-load_dotenv()
 
 
 class HybridSearchPipeline(AzureSearchPipelineBase):

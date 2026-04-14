@@ -1,6 +1,7 @@
-python-dotenv
-azure-core
+python-dotenv>=1.0.0
+azure-core>=1.30.0
+azure-identity>=1.15.0
 azure-search-documents==11.5.2
-azure-storage-blob
-azure-identity
-openai
+azure-storage-blob>=12.19.0
+openai>=1.50.0
+streamlit>=1.35.0

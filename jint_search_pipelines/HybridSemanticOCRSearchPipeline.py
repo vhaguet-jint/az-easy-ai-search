@@ -4,11 +4,9 @@ from azure.search.documents.indexes.models import (
     SemanticPrioritizedFields,
     SemanticSearch,
 )
-from dotenv import load_dotenv
 
 from .OCRImageSearchPipeline import OCRImageSearchPipeline
 
-load_dotenv()
 
 
 class HybridSemanticOCRSearchPipeline(OCRImageSearchPipeline):

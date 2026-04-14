@@ -1,8 +1,6 @@
-from dotenv import load_dotenv
 
 from .AzureSearchPipelineBase import AzureSearchPipelineBase
 
-load_dotenv()
 
 
 class VectorSearchPipeline(AzureSearchPipelineBase):

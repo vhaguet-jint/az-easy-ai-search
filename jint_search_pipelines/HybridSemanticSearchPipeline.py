@@ -6,11 +6,9 @@ from azure.search.documents.indexes.models import (
     SemanticPrioritizedFields,
     SemanticSearch,
 )
-from dotenv import load_dotenv
 
 from .AzureSearchPipelineBase import AzureSearchPipelineBase
 
-load_dotenv()
 
 
 class HybridSemanticSearchPipeline(AzureSearchPipelineBase):

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "jint-search-pipelines"
+version = "0.1.0"
+description = "Azure AI Search index pipelines for PDF and image documents"
+requires-python = ">=3.10"
+dependencies = [
+    "azure-core>=1.30.0",
+    "azure-identity>=1.15.0",
+    "azure-search-documents==11.5.2",
+    "azure-storage-blob>=12.19.0",
+    "openai>=1.50.0",
+    "python-dotenv>=1.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["jint_search_pipelines*"]
